@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/cache")
@@ -38,7 +39,7 @@ public class FileController {
     }
 
     @PostMapping("/store")
-    public ResponseEntity<String> cacheImmediately(@RequestBody CacheRequestDto request) throws IOException {
+    public ResponseEntity<List<String>> cacheImmediately(@RequestBody CacheRequestDto request) throws IOException {
 
         return ResponseEntity.ok(
                 cacheService.cache(request.getFileId(), request.getSource(), request.getBegin(), request.getEnd()));

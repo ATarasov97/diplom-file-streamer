@@ -4,6 +4,7 @@ import org.springframework.data.util.Pair;
 
 import java.util.regex.Pattern;
 
+//todo: replace with factory
 public class ContentRangeParser {
     private static final Pattern PATTERN = Pattern.compile(".* ([0-9]+)-([0-9]+)/([0-9]+)");
 

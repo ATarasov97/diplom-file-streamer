@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Objects;
-import java.util.regex.Pattern;
 
 import static com.diplom.filestreamer.header.ContentRangeParser.getRangeFromHeader;
 

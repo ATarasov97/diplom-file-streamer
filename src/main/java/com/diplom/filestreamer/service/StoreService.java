@@ -7,14 +7,15 @@ import com.diplom.filestreamer.properties.FileStreamerProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.data.util.Pair;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRange;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StreamUtils;
 
+import org.springframework.transaction.annotation.Transactional;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -25,6 +26,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static com.diplom.filestreamer.header.ContentRangeParser.getContentLength;
+import static com.diplom.filestreamer.header.ContentRangeParser.getRangeFromHeader;
 import static java.lang.Math.min;
 
 @Service
@@ -34,7 +36,7 @@ public class StoreService {
     private final FileStreamerProperties properties;
     private final StoreDescriptionRepository storeDescriptionRepository;
 
-    @Transactional(readOnly = true)
+    @Transactional
     public Optional<FilePartDto> findCache(String fileId, HttpRange range) {
 
         var descriptionList = storeDescriptionRepository.findAllByFileIdAndFileNameIsNotNull(fileId);
@@ -101,19 +103,20 @@ public class StoreService {
     }
 
     @Transactional
-    public String createStoreDescriptor(String fileId,
-                                        String source,
-                                        long begin,
-                                        long end,
-                                        ResponseEntity<Resource> resource) throws IOException {
+    public Pair<String, Long> createStoreDescriptor(String fileId,
+                                                    String source,
+                                                    long begin,
+                                                    long end,
+                                                    ResponseEntity<Resource> resource) throws IOException {
         var greaterFragmentOptional = storeDescriptionRepository.findFirstByStartByteLessThanEqualAndEndByteGreaterThanEqual(begin, end);
         if (greaterFragmentOptional.isPresent()) {
-            return null;
+            StoreDescription greaterFragment = greaterFragmentOptional.get();
+            return Pair.of(greaterFragment.getId(), greaterFragment.getEndByte());
         }
         var smallerFragmentOptional = storeDescriptionRepository.findFirstByStartByteGreaterThanEqualAndEndByteLessThanEqual(begin, end);
-        var id = createNewFragment(fileId, source, begin, end, resource);
+        var newFragment = createNewFragment(fileId, source, begin, end, resource);
         smallerFragmentOptional.ifPresent(this::deleteFragment);
-        return id;
+        return newFragment;
     }
 
     private void deleteFragment(StoreDescription storeDescription) {
@@ -124,7 +127,7 @@ public class StoreService {
         file.delete();
     }
 
-    private String createNewFragment(String fileId, String source, long begin, long end, ResponseEntity<Resource> resource) throws IOException {
+    private Pair<String, Long> createNewFragment(String fileId, String source, long begin, long end, ResponseEntity<Resource> resource) throws IOException {
         var contentRange = Objects.requireNonNull(resource.getHeaders().get(HttpHeaders.CONTENT_RANGE)).get(0);
         var newStoreDescriptor = StoreDescription.builder()
                 .fileId(fileId)
@@ -133,7 +136,7 @@ public class StoreService {
                 .mediaType(resource.getHeaders().getContentType().toString())
                 .source(source)
                 .startByte(begin)
-                .endByte(end + 1)
+                .endByte(end)
                 .build();
         storeDescriptionRepository.save(newStoreDescriptor);
         storeDescriptionRepository.flush();
@@ -144,7 +147,7 @@ public class StoreService {
         StreamUtils.copy(is, fos);
         fos.close();
         newStoreDescriptor.setFileName(id);
-        return id;
+        return Pair.of(id, end);
     }
 
 }
