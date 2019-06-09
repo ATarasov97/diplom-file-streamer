@@ -10,6 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.time.Instant;
 
 @Data
 @Builder
@@ -28,4 +29,5 @@ public class FragmentView {
     private String fileId;
     private long begin;
     private long end;
+    private Instant createdAt;
 }

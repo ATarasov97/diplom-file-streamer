@@ -10,6 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.time.Instant;
 
 @Data
 @Builder
@@ -26,4 +27,5 @@ public class View {
     )
     private String id;
     private String fileId;
+    private Instant createdAt;
 }

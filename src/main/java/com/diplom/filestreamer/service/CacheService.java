@@ -1,10 +1,8 @@
 package com.diplom.filestreamer.service;
 
-import com.diplom.filestreamer.entity.Source;
 import com.diplom.filestreamer.entity.SourceRepository;
 import com.diplom.filestreamer.exception.FileStreamerException;
 import com.diplom.filestreamer.fileserver.service.FileServerService;
-import com.diplom.filestreamer.properties.FileStreamerProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.data.util.Pair;
@@ -57,11 +55,11 @@ public class CacheService {
 
     //todo:replace with dto
     private Pair<String, Long> cacheFragment(String fileId, String source, long begin, long end, long maxCacheAmount, Supplier<Optional<String>> cleanUpIdSupplier) throws IOException {
-        long filled = storeService.calculateFilled(source);
-
         if ((end - begin) > maxCacheAmount) {
             throw new FileStreamerException("Cache region is to big");
         }
+
+        long filled = storeService.calculateFilled(source);
         while ((end - begin) + filled > maxCacheAmount) {
             Optional<String> optionalId = cleanUpIdSupplier.get();
             if (optionalId.isEmpty()) {

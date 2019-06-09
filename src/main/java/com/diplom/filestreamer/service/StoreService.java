@@ -13,9 +13,9 @@ import org.springframework.http.HttpRange;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StreamUtils;
 
-import org.springframework.transaction.annotation.Transactional;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -26,7 +26,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static com.diplom.filestreamer.header.ContentRangeParser.getContentLength;
-import static com.diplom.filestreamer.header.ContentRangeParser.getRangeFromHeader;
 import static java.lang.Math.min;
 
 @Service

@@ -6,6 +6,8 @@ import com.diplom.filestreamer.collector.DownloadCollector;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
+
 @Component
 @RequiredArgsConstructor
 public class FragmentDownloadCollector implements DownloadCollector {
@@ -18,6 +20,7 @@ public class FragmentDownloadCollector implements DownloadCollector {
                 .begin(begin)
                 .end(end)
                 .fileId(id)
+                .createdAt(Instant.now())
                 .build());
     }
 }

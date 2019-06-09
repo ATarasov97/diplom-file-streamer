@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+
 
 @Component
 @RequiredArgsConstructor
@@ -19,6 +21,7 @@ public class ViewCounterOpenFileCollector implements OpenFileCollector {
     public void collect(String id) {
         viewRepository.save(View.builder()
                 .fileId(id)
+                .createdAt(Instant.now())
                 .build());
     }
 }
